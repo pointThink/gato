@@ -27,21 +27,30 @@ def createProject(filePath: str):
 			newProject.projectType = compiler.ProjectType.LIB_SHARED
 
 		newProject.sourceFiles = []
+		newProject.defines = {}
+		newProject.includeDirs = []
+		newProject.libraries = []
 
 		if "include_dirs" in yamlContent[projectName]:
 			newProject.includeDirs = yamlContent[projectName]["include_dirs"]
-		else:
-			newProject.includeDirs = []
 
 		if "libraries" in yamlContent[projectName]:
 			newProject.libraries = yamlContent[projectName]["libraries"]
-		else:
-			newProject.libraries = []
 
 		# recurse through the source folders and find files
 		for sourceFolder in yamlContent[projectName]["sources"]:
 			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".cpp")
 			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".c")
+
+		# add preprocessor defines
+		if "defines" in yamlContent[projectName]:
+			for define in yamlContent[projectName]["defines"]:
+				defineSplit = define.split("=")
+
+				if len(defineSplit) >= 2:
+					newProject.defines[defineSplit[0]] = defineSplit[1]
+				else:
+					newProject.defines[defineSplit[0]] = None
 
 		projects.append(newProject)
 

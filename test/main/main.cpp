@@ -1,7 +1,9 @@
 #include <iostream>
 #include "mathlib.h"
 
+#ifdef MAIN
 int main()
 {
-    std::cout << Add(69, 420) << std::endl;
+    std::cout << Add(NUMBER1, NUMBER2) << std::endl;
 }
+#endif

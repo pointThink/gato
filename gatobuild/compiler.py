@@ -9,24 +9,32 @@ class ProjectType(Enum):
 	LIB_STATIC = 2
 
 class Compiler:
-	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list):
+	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
 		return False, "Blank compiler!"
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
 		return False, "Blank compiler!"
 
 class GCC(Compiler):
-	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, ):
+	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
 		includeParams = []
 
 		for includeDir in includeDirs:
 			includeParams += "-I\"" + includeDir + "\""
 
-		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
+		preprocessorParams = []
 
-		objectPath = objectPath.replace("\\", "/");
+		for defineName in preprocessorDefines:
+			if preprocessorDefines[defineName] == None:
+				preprocessorParams.append(f"-D \"{defineName}\" ")
+			else:
+				preprocessorParams.append(f"-D \"{defineName}={preprocessorDefines[defineName]}\" ")
+
+		defineString = utils.joinStringList(preprocessorParams, parenthisies=False)
+		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
+		objectPath = objectPath.replace("\\", "/")
 
 		if sourcePath.endswith(".c"):
-			process = subprocess.Popen(f"gcc -c \"{sourcePath}\" {includeParamsString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"gcc -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 
 			if errorOut.decode() == "":
@@ -34,7 +42,7 @@ class GCC(Compiler):
 			else:
 				return False, errorOut.decode()
 		else:
-			process = subprocess.Popen(f"g++ -c \"{sourcePath}\" {includeParamsString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"g++ -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 
 			if errorOut.decode() == "":

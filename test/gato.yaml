@@ -20,3 +20,8 @@ main:
 
   libraries:
     - "bin/math"
+
+  defines:
+    - "MAIN"
+    - "NUMBER1=420"
+    - "NUMBER2=69"

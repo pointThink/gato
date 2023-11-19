@@ -16,6 +16,7 @@ class Project:
 	sourceFiles: list
 	includeDirs: list
 	libraries: list
+	defines: dict
 
 	def build(self, compiler: compiler.Compiler):
 		if not os.path.isdir("obj"):
@@ -47,7 +48,7 @@ class Project:
 
 			if dateFile.read() != time.ctime(os.path.getmtime(file)):
 				print_colored(f"Compiling file {os.path.basename(file)}\n", Color.CYAN)
-				succeded, error = compiler.compileFile(file, objPath, self.includeDirs)
+				succeded, error = compiler.compileFile(file, objPath, self.includeDirs, self.defines)
 
 				if succeded:
 					dateFile = open(relPath, "w+") # todo find a better way to do this
