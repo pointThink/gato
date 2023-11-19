@@ -21,7 +21,7 @@ def createDirsForFile(path: str):
 	path = ""
 
 	for dir in dirsToMake:
-		if dir == dirsToMake[-1]:
+		if dir is dirsToMake[-1]:
 			break
 
 		if not os.path.isdir(path + dir):

@@ -1,6 +1,7 @@
 import yaml
 import project
 import os
+import compiler
 
 import utils
 
@@ -19,11 +20,11 @@ def createProject(filePath: str):
 		projectType = yamlContent[projectName]["type"]
 
 		if projectType == "executable":
-			newProject.projectType = project.ProjectType.EXECUTABLE
+			newProject.projectType = compiler.ProjectType.EXECUTABLE
 		elif projectType == "lib_static":
-			newProject.projectType = project.ProjectType.LIB_STATIC
+			newProject.projectType = compiler.ProjectType.LIB_STATIC
 		elif projectType == "lib_shared":
-			newProject.projectType = project.ProjectType.LIB_SHARED
+			newProject.projectType = compiler.ProjectType.LIB_SHARED
 
 		newProject.sourceFiles = []
 		newProject.includeDirs = yamlContent[projectName]["include_dirs"]

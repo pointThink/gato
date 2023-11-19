@@ -1,9 +1,19 @@
-test:
-  target_name: "cool_program"
+math:
+  target_name: "math"
+  type: "lib_static"
+
+  sources:
+    - "math"
+
+  include_dirs:
+    - "math"
+
+main:
+  target_name: "test"
   type: "executable"
 
   sources:
-    - "Source"
+    - "main"
 
   include_dirs:
-    - "Include"
+    - "math"

@@ -6,15 +6,11 @@ import yaml
 import utils
 import compiler
 
-class ProjectType(Enum):
-	EXECUTABLE = 0
-	LIB_SHARED = 1
-	LIB_STATIC = 2
 
 class Project:
 	name: str
 	targetName: str
-	projectType: ProjectType
+	projectType: compiler.ProjectType
 
 	sourceFiles: list
 	includeDirs: list
@@ -35,6 +31,8 @@ class Project:
 			objPath = "obj/" + os.path.relpath(file).rstrip(".cpp")
 			objects.append(objPath)
 
+			utils.createDirsForFile(objPath.replace("\\", "/"))
+
 			# Check if should rebuild the file
 			dateFile = None
 			relPath = ".gato/" + os.path.relpath(file)
@@ -52,12 +50,10 @@ class Project:
 				continue
 
 			print("Building file " + file)
-
-			utils.createDirsForFile(objPath)
 			compiler.compileFile(file, objPath, self.includeDirs)
 
 		if objects != []:
 			print("Linking files")
-			compiler.linkFiles(objects, "bin/" + self.targetName)
+			compiler.linkFiles(objects, "bin/" + self.targetName, self.projectType)
 		else:
 			print("No files to link!")
