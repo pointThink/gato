@@ -1,0 +1,6 @@
+test:
+  target_name: "cool_program"
+  type: "executable"
+
+  sources:
+    - "Source"
