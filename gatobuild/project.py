@@ -5,6 +5,7 @@ import yaml
 
 import utils
 import compiler
+from color import *
 
 
 class Project:
@@ -14,6 +15,7 @@ class Project:
 
 	sourceFiles: list
 	includeDirs: list
+	libraries: list
 
 	def build(self, compiler: compiler.Compiler):
 		if not os.path.isdir("obj"):
@@ -44,16 +46,20 @@ class Project:
 				dateFile = open(relPath, "w+")
 
 			if dateFile.read() != time.ctime(os.path.getmtime(file)):
-				dateFile = open(relPath, "w+") # todo find a better way to do this
-				dateFile.write(time.ctime(os.path.getmtime(file)))
-			else:
-				continue
+				print_colored(f"Compiling file {os.path.basename(file)}\n", Color.CYAN)
+				succeded, error = compiler.compileFile(file, objPath, self.includeDirs)
 
-			print("Building file " + file)
-			compiler.compileFile(file, objPath, self.includeDirs)
+				if succeded:
+					dateFile = open(relPath, "w+") # todo find a better way to do this
+					dateFile.write(time.ctime(os.path.getmtime(file)))
+				else:
+					print_colored(f"Failed to build file{os.path.basename(file)}\n", Color.RED)
+					print_colored(error, Color.RED)
+
+
 
 		if objects != []:
-			print("Linking files")
-			compiler.linkFiles(objects, "bin/" + self.targetName, self.projectType)
+			print_colored(f"Linking files for project \"{self.name}\"\n", Color.BLUE)
+			compiler.linkFiles(objects, "bin/" + self.targetName, self.projectType, self.libraries)
 		else:
 			print("No files to link!")

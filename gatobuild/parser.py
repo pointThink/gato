@@ -27,7 +27,16 @@ def createProject(filePath: str):
 			newProject.projectType = compiler.ProjectType.LIB_SHARED
 
 		newProject.sourceFiles = []
-		newProject.includeDirs = yamlContent[projectName]["include_dirs"]
+
+		if "include_dirs" in yamlContent[projectName]:
+			newProject.includeDirs = yamlContent[projectName]["include_dirs"]
+		else:
+			newProject.includeDirs = []
+
+		if "libraries" in yamlContent[projectName]:
+			newProject.libraries = yamlContent[projectName]["libraries"]
+		else:
+			newProject.libraries = []
 
 		# recurse through the source folders and find files
 		for sourceFolder in yamlContent[projectName]["sources"]:

@@ -17,3 +17,6 @@ main:
 
   include_dirs:
     - "math"
+
+  libraries:
+    - "bin/math"
