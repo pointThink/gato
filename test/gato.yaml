@@ -15,11 +15,8 @@ main:
   sources:
     - "main"
 
-  include_dirs:
+  deps:
     - "math"
-
-  libraries:
-    - "bin/math"
 
   defines:
     - "MAIN"

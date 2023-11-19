@@ -24,6 +24,9 @@ def main(args: list):
 			color.print_colored(f"Unknown command: {args[1]}", color.Color.RED)
 			exit(1)
 
+	else:
+		color.print_colored(f"Expected 1 argument", color.Color.RED)
+
 	for project in projects:
 		project.build(compiler.GCC())
 

@@ -17,6 +17,7 @@ class Project:
 	includeDirs: list
 	libraries: list
 	defines: dict
+	deps: list
 
 	def build(self, compiler: compiler.Compiler):
 		if not os.path.isdir("obj"):
@@ -53,11 +54,12 @@ class Project:
 				if succeded:
 					dateFile = open(relPath, "w+") # todo find a better way to do this
 					dateFile.write(time.ctime(os.path.getmtime(file)))
+
 				else:
 					print_colored(f"Failed to build file{os.path.basename(file)}\n", Color.RED)
 					print_colored(error, Color.RED)
 
-
+		print()
 
 		if objects != []:
 			print_colored(f"Linking project \"{self.name}\"\n", Color.BLUE)
@@ -70,3 +72,5 @@ class Project:
 				print_colored(error, Color.RED)
 		else:
 			print("No files to link!")
+
+		print()

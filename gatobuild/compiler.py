@@ -19,7 +19,7 @@ class GCC(Compiler):
 		includeParams = []
 
 		for includeDir in includeDirs:
-			includeParams += "-I\"" + includeDir + "\""
+			includeParams += "-I\"" + includeDir + "\" "
 
 		preprocessorParams = []
 
