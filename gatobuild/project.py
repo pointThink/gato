@@ -1,33 +1,7 @@
 import os
 from enum import Enum
 
-def createDirsForFile(path: str):
-	# Create dir for the obj file
-	dirsToMake = path.split("/")
-	path = ""
-
-	for dir in dirsToMake:
-		if dir == dirsToMake[-1]:
-			break
-
-		if not os.path.isdir(path + dir):
-			os.mkdir(path + dir)
-
-		path = path + dir + "/"
-
-def findObjectFiles(folder: str):
-	contents = os.listdir(folder)
-
-	objects = []
-
-	for path in contents:
-		if os.path.isdir(os.path.join(folder, path)):
-			objects += findObjectFiles(os.path.join(folder, path))
-		elif path.endswith(".o"):
-			print("aaa")
-			objects.append(folder + "/" + path)
-
-	return objects
+import utils
 
 class ProjectType(Enum):
 	EXECUTABLE = 0
@@ -40,6 +14,7 @@ class Project:
 	projectType: ProjectType
 
 	sourceFiles: list
+	includeDirs: list
 
 	def build(self):
 		if not os.path.isdir("obj"):
@@ -48,21 +23,29 @@ class Project:
 		if not os.path.isdir("bin"):
 			os.mkdir("bin")
 
+		# make inlcude parameters
+		includeParams = []
+
+		for includeDir in self.includeDirs:
+			absPath = os.path.abspath(includeDir).replace("\\", "/")
+			includeParams += f"-I\"{absPath}\""
+
+		# make these into one string
+		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
+
 		for file in self.sourceFiles:
 			print("Bleep bloop. Building file " + file)
 
-			objPath = "obj/" + file.rstrip(".cpp") + ".o"
+			objPath = "obj/" + os.path.relpath(file).rstrip(".cpp") + ".o"
 
-			createDirsForFile(objPath)
+			utils.createDirsForFile(objPath)
 
-			os.system(f"g++ -c \"{file}\" -o \"{objPath}\"")
+			print(f"g++ -c \"{file}\" {includeParamsString} -o \"{objPath}\"")
+			os.system(f"g++ -c \"{file}\" {includeParamsString} -o \"{objPath}\"")
 
 		# link dat shit
-		objects = findObjectFiles("obj")
-		objectPathsString = ""
-
-		for object in objects:
-			objectPathsString += "\"" + object + "\"" + " "
+		objects = utils.findFilesEndingWith("obj", ".o")
+		objectPathsString = utils.joinStringList(objects)
 
 		print(f"g++ {objectPathsString} -o \"bin/{self.targetName}\"")
 		os.system(f"g++ {objectPathsString} -o \"bin/{self.targetName}\"")

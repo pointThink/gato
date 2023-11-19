@@ -1,20 +1,8 @@
 import yaml
 import project
-
 import os
 
-def findSourcesInFolder(folder: str):
-	contents = os.listdir(folder)
-
-	sourceFiles = []
-
-	for path in contents:
-		if os.path.isdir(os.path.join(folder, path)):
-			sourceFiles += findSourcesInFolder(folder + "/" + path)
-		elif path.endswith(".cpp"):
-			sourceFiles.append(folder + "/" + path)
-
-	return sourceFiles
+import utils
 
 def createProject(filePath: str):
 	gatoFile = open(filePath, "r")
@@ -38,10 +26,11 @@ def createProject(filePath: str):
 			newProject.projectType = project.ProjectType.LIB_SHARED
 
 		newProject.sourceFiles = []
+		newProject.includeDirs = yamlContent[projectName]["include_dirs"]
 
 		# recurse through the source folders and find files
 		for sourceFolder in yamlContent[projectName]["sources"]:
-			newProject.sourceFiles += findSourcesInFolder(os.path.dirname(filePath) + "/" + sourceFolder)
+			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".cpp")
 
 		projects.append(newProject)
 

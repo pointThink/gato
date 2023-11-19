@@ -1,4 +1,5 @@
 import sys
+import os
 import parser
 
 def main(args: list):
@@ -7,9 +8,9 @@ def main(args: list):
 	projects: list
 
 	if len(args) == 2:
-		projects = parser.createProject(args[1])
+		projects = parser.createProject(os.path.abspath(args[1]))
 	else:
-		projects = parser.createProject("gato.yaml")
+		projects = parser.createProject(os.path.abspath("gato.yaml"))
 
 	for project in projects:
 		project.build()
