@@ -1,6 +1,7 @@
 import sys
 import os
 import parser
+import compiler
 
 def main(args: list):
 	# load the yaml file
@@ -13,7 +14,7 @@ def main(args: list):
 		projects = parser.createProject(os.path.abspath("gato.yaml"))
 
 	for project in projects:
-		project.build()
+		project.build(compiler.GCC())
 
 if __name__ == "__main__":
 	main(sys.argv)

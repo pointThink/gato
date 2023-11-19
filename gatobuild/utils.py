@@ -15,7 +15,8 @@ def findFilesEndingWith(folder: str, end: str):
 
 
 def createDirsForFile(path: str):
-	# Create dir for the obj file
+	path = path.replace("\\", "/")
+
 	dirsToMake = path.split("/")
 	path = ""
 

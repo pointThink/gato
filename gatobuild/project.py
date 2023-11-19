@@ -1,7 +1,10 @@
 import os
+import time
 from enum import Enum
+import yaml
 
 import utils
+import compiler
 
 class ProjectType(Enum):
 	EXECUTABLE = 0
@@ -16,36 +19,45 @@ class Project:
 	sourceFiles: list
 	includeDirs: list
 
-	def build(self):
+	def build(self, compiler: compiler.Compiler):
 		if not os.path.isdir("obj"):
 			os.mkdir("obj")
 
 		if not os.path.isdir("bin"):
 			os.mkdir("bin")
 
-		# make inlcude parameters
-		includeParams = []
+		objects = []
 
-		for includeDir in self.includeDirs:
-			absPath = os.path.abspath(includeDir).replace("\\", "/")
-			includeParams += f"-I\"{absPath}\""
-
-		# make these into one string
-		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
+		if not os.path.isdir(".gato"):
+			os.mkdir(".gato")
 
 		for file in self.sourceFiles:
-			print("Bleep bloop. Building file " + file)
+			objPath = "obj/" + os.path.relpath(file).rstrip(".cpp")
+			objects.append(objPath)
 
-			objPath = "obj/" + os.path.relpath(file).rstrip(".cpp") + ".o"
+			# Check if should rebuild the file
+			dateFile = None
+			relPath = ".gato/" + os.path.relpath(file)
+			utils.createDirsForFile(relPath)
+
+			if os.path.isfile(relPath):
+				dateFile = open(relPath, "r+")
+			else:
+				dateFile = open(relPath, "w+")
+
+			if dateFile.read() != time.ctime(os.path.getmtime(file)):
+				dateFile.truncate()
+				dateFile.write(time.ctime(os.path.getmtime(file)))
+			else:
+				continue
+
+			print("Building file " + file)
 
 			utils.createDirsForFile(objPath)
+			compiler.compileFile(file, objPath, self.includeDirs)
 
-			print(f"g++ -c \"{file}\" {includeParamsString} -o \"{objPath}\"")
-			os.system(f"g++ -c \"{file}\" {includeParamsString} -o \"{objPath}\"")
-
-		# link dat shit
-		objects = utils.findFilesEndingWith("obj", ".o")
-		objectPathsString = utils.joinStringList(objects)
-
-		print(f"g++ {objectPathsString} -o \"bin/{self.targetName}\"")
-		os.system(f"g++ {objectPathsString} -o \"bin/{self.targetName}\"")
+		if objects != []:
+			print("Linking files")
+			compiler.linkFiles(objects, "bin/" + self.targetName)
+		else:
+			print("No files to link!")
