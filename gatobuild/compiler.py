@@ -18,7 +18,10 @@ class GCC(Compiler):
 
 		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
 
-		os.system(f"g++ -c \"{sourcePath}\" {includeParamsString} -o \"{objectPath}.o\"")
+		if sourcePath.endswith(".c"):
+			os.system(f"gcc -c \"{sourcePath}\" {includeParamsString} -o \"{objectPath}.o\"")
+		else:
+			os.system(f"g++ -c \"{sourcePath}\" {includeParamsString} -o \"{objectPath}.o\"")
 
 	def linkFiles(self, objectList: list, outputPath: str):
 		newObjects = []

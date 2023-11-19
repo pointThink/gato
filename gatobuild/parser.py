@@ -31,6 +31,7 @@ def createProject(filePath: str):
 		# recurse through the source folders and find files
 		for sourceFolder in yamlContent[projectName]["sources"]:
 			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".cpp")
+			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".c")
 
 		projects.append(newProject)
 

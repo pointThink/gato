@@ -46,7 +46,7 @@ class Project:
 				dateFile = open(relPath, "w+")
 
 			if dateFile.read() != time.ctime(os.path.getmtime(file)):
-				dateFile.truncate()
+				dateFile = open(relPath, "w+") # todo find a better way to do this
 				dateFile.write(time.ctime(os.path.getmtime(file)))
 			else:
 				continue
