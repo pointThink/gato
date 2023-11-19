@@ -15,9 +15,8 @@ main:
   sources:
     - "main"
 
-  deps:
+  include_dirs:
     - "math"
 
-  defines:
-    - "NUMBER1=420"
-    - "NUMBER2=69"
+  libraries:
+    - "build/bin/math"

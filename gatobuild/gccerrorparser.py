@@ -14,7 +14,6 @@ def parseError(jsonInput: str):
 
 	jsonObj = json.loads(jsonInput)
 
-
 	for jsonError in jsonObj:
 		result = error.Error()
 
@@ -35,8 +34,12 @@ def parseError(jsonInput: str):
 
 			result.severity = 1
 
-		else:
-			continue
+		elif jsonError["kind"] == "fatal error":
+			buildFailed = True
+			result.severity = 2
+			result.line = jsonError["locations"][0]["finish"]["line"]
+			result.column = jsonError["locations"][0]["finish"]["column"]
+			result.description = jsonError["message"]
 
 		results.append(result)
 

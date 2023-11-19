@@ -20,11 +20,14 @@ class Project:
 	deps: list
 
 	def build(self, compiler: compiler.Compiler, forceRebuild: bool):
-		if not os.path.isdir("obj"):
-			os.mkdir("obj")
+		if not os.path.isdir("build"):
+			os.mkdir("build")
 
-		if not os.path.isdir("bin"):
-			os.mkdir("bin")
+		if not os.path.isdir("build/obj"):
+			os.mkdir("build/obj")
+
+		if not os.path.isdir("build/bin"):
+			os.mkdir("build/bin")
 
 		objects = []
 
@@ -32,7 +35,7 @@ class Project:
 			os.mkdir(".gato")
 
 		for file in self.sourceFiles:
-			objPath = "obj/" + os.path.relpath(file).rstrip(".cpp")
+			objPath = "build/obj/" + os.path.relpath(file).rstrip(".cpp")
 			objects.append(objPath)
 
 			utils.createDirsForFile(objPath.replace("\\", "/"))
@@ -56,9 +59,9 @@ class Project:
 
 		if objects != []:
 			print_colored(f"Linking project \"{self.name}\"\n", Color.BLUE)
-			succeded, error = compiler.linkFiles(objects, "bin/" + self.targetName, self.projectType, self.libraries)
+			failed, error = compiler.linkFiles(objects, "build/bin/" + self.targetName, self.projectType, self.libraries)
 
-			if succeded:
+			if not failed:
 				print_colored(f"Linked project \"{self.name}\"\n", Color.GREEN)
 			else:
 				print_colored(f"Failed to link project \"{self.name}\"\n", Color.RED)

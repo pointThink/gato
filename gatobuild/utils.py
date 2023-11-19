@@ -57,3 +57,14 @@ def joinStringList(list: list, parenthisies=True):
 			finalString += string + ""
 
 	return finalString
+
+def deleteItem(item: str):
+	# check if the item is a directory
+	if os.path.isdir(item):
+		for file in os.listdir(item):
+			deleteItem(item + '/' + file)
+
+		os.rmdir(item)
+
+	else:
+		os.remove(item)

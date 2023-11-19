@@ -12,9 +12,52 @@ class ProjectType(Enum):
 
 class Compiler:
 	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
-		return error.Error()
+		return True, []
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
-		return False, "Blank compiler!"
+		return True, "Blank compiler!"
+
+class MSVC(Compiler):
+	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
+		includeParams = []
+		for includeDir in includeDirs:
+			includeParams += "/I\"" + includeDir + "\" "
+
+		includeString = utils.joinStringList(includeParams, parenthisies=False)
+
+		process = subprocess.Popen(f"cl.exe /c /nologo /EHsc {includeString} \"{sourcePath}\" /Fo\"{objectPath}.obj", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		out, err = process.communicate()
+
+		print(err.decode())
+		print(out.decode())
+
+		return False, []
+	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
+		objects = []
+
+		for object in objectList:
+			objects.append((object + ".obj").replace("\\", "/"))
+
+		newLibs = []
+		for library in libraries:
+			newLibs.append(library + ".lib")
+
+		libsString = utils.joinStringList(newLibs)
+
+		objectsString = utils.joinStringList(objects)
+
+		process = None
+
+		if outputType == ProjectType.EXECUTABLE:
+			process = subprocess.Popen(f"link.exe /NOLOGO /MANIFEST /SUBSYSTEM:CONSOLE /MACHINE:x64 {objectsString} {libsString} /OUT:\"{outputPath}.exe\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		elif outputType == ProjectType.LIB_STATIC:
+			process = subprocess.Popen(f"lib.exe /NOLOGO {objectsString} /OUT:{outputPath}.lib", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		out, err = process.communicate()
+		print(err.decode())
+		print(out.decode())
+
+		return False, "No error"
 
 class GCC(Compiler):
 	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
