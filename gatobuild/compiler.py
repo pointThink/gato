@@ -2,6 +2,8 @@ import os
 import utils
 from enum import Enum
 import subprocess
+import error
+import gccerrorparser
 
 class ProjectType(Enum):
 	EXECUTABLE = 0
@@ -10,7 +12,7 @@ class ProjectType(Enum):
 
 class Compiler:
 	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
-		return False, "Blank compiler!"
+		return error.Error()
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
 		return False, "Blank compiler!"
 
@@ -37,16 +39,13 @@ class GCC(Compiler):
 		errorOut = b''
 
 		if sourcePath.endswith(".c"):
-			process = subprocess.Popen(f"gcc -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"gcc -fdiagnostics-format=json -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 		else:
-			process = subprocess.Popen(f"g++ -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"g++ -fdiagnostics-format=json -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 
-		if errorOut.decode() == "":
-			return True, "No error"
-		else:
-			return False, errorOut.decode()
+		return gccerrorparser.parseError(errorOut.decode().split("\n")[0])
 
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
 		newObjects = []

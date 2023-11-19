@@ -6,7 +6,7 @@ import yaml
 import utils
 import compiler
 from color import *
-
+from error import printError
 
 class Project:
 	name: str
@@ -38,15 +38,19 @@ class Project:
 			utils.createDirsForFile(objPath.replace("\\", "/"))
 
 			if utils.fileWasChanged(file) or forceRebuild:
-				print_colored(f"Compiling file {os.path.basename(file)}\n", Color.CYAN)
-				succeded, error = compiler.compileFile(file, objPath, self.includeDirs, self.defines)
+				print_colored(f"Compiling file {os.path.basename(file)}... ", Color.WHITE)
+				failed, results = compiler.compileFile(file, objPath, self.includeDirs, self.defines)
 
-				if succeded:
+				if not failed:
+					print_colored("DONE!\n", Color.GREEN)
 					utils.updateFileTimeStamp(file)
 
 				else:
-					print_colored(f"Failed to build file{os.path.basename(file)}\n", Color.RED)
-					print_colored(error, Color.RED)
+
+					print_colored("FAILED!\n", Color.RED)
+
+				for result in results:
+					printError(result)
 
 		print()
 
