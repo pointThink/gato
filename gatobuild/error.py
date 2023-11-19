@@ -15,4 +15,4 @@ def printError(error: Error):
 	elif error.severity == 2:
 		print_colored("[ ERROR ] ", Color.RED)
 
-	print(f"{error.line}:{error.column} - {error.description}")
+	print(f"{error.line}:{error.column} {error.file} - {error.description}")

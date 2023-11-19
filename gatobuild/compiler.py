@@ -2,8 +2,8 @@ import os
 import utils
 from enum import Enum
 import subprocess
-import error
 import gccerrorparser
+import msvcerrorparser
 
 class ProjectType(Enum):
 	EXECUTABLE = 0
@@ -22,15 +22,21 @@ class MSVC(Compiler):
 		for includeDir in includeDirs:
 			includeParams += "/I\"" + includeDir + "\" "
 
+		defineParams = []
+		for define in preprocessorDefines:
+			if preprocessorDefines[define] != None:
+				defineParams.append("/D" + define +"=\"" + preprocessorDefines[define] + "\" ")
+			else:
+				defineParams.append("/D" + define + " ")
+
+		definesString = utils.joinStringList(defineParams, parenthisies=False)
 		includeString = utils.joinStringList(includeParams, parenthisies=False)
 
-		process = subprocess.Popen(f"cl.exe /c /nologo /EHsc {includeString} \"{sourcePath}\" /Fo\"{objectPath}.obj", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		process = subprocess.Popen(f"cl.exe /c /nologo /EHsc {includeString} {definesString} \"{sourcePath}\" /Fo\"{objectPath}.obj", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = process.communicate()
 
-		print(err.decode())
-		print(out.decode())
+		return msvcerrorparser.parseErrors(out.decode())
 
-		return False, []
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
 		objects = []
 
@@ -54,8 +60,9 @@ class MSVC(Compiler):
 			process = subprocess.Popen(f"lib.exe /NOLOGO {objectsString} /OUT:{outputPath}.lib", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		out, err = process.communicate()
-		print(err.decode())
-		print(out.decode())
+
+		if out.decode() != "":
+			return True, out.decode()
 
 		return False, "No error"
 

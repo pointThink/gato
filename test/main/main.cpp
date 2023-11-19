@@ -3,5 +3,5 @@
 
 int main()
 {
-    std::cout << Add(2, 2) << std::endl;
+    std::cout << Add(NUM1, NUM2) << std::endl;
 }

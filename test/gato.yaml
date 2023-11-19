@@ -20,3 +20,7 @@ main:
 
   libraries:
     - "build/bin/math"
+
+  defines:
+    - "NUM1=410"
+    - "NUM2=69"
