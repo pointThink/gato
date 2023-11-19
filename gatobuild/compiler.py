@@ -33,24 +33,20 @@ class GCC(Compiler):
 		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
 		objectPath = objectPath.replace("\\", "/")
 
+		output = b''
+		errorOut = b''
+
 		if sourcePath.endswith(".c"):
 			process = subprocess.Popen(f"gcc -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
-
-			if errorOut.decode() == "":
-				return True, "No error"
-			else:
-				return False, errorOut.decode()
 		else:
 			process = subprocess.Popen(f"g++ -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 
-			if errorOut.decode() == "":
-				return True, "No error"
-			else:
-				return False, errorOut.decode()
-
-		return False, "Unknown file type"
+		if errorOut.decode() == "":
+			return True, "No error"
+		else:
+			return False, errorOut.decode()
 
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
 		newObjects = []
@@ -61,15 +57,25 @@ class GCC(Compiler):
 
 		objectsString = utils.joinStringList(newObjects)
 
-		for lib in libraries:
-			folder = os.path.dirname(lib).replace("\\", "/")
-			newLibs.append(f"-L\"{folder}\" -l\"{os.path.basename(lib)}\"")
-
-		libsString = utils.joinStringList(newLibs, parenthisies=False)
+		output = b''
+		errorOut = b''
 
 		if outputType == ProjectType.EXECUTABLE:
-			os.system(f"g++ {objectsString} {libsString} -o \"{outputPath}\"")
+			for lib in libraries:
+				folder = os.path.dirname(lib).replace("\\", "/")
+				newLibs.append(f"-L\"{folder}\" -l\"{os.path.basename(lib)}\"")
+
+			libsString = utils.joinStringList(newLibs, parenthisies=False)
+
+			process = subprocess.Popen(f"g++ {objectsString} {libsString} -o \"{outputPath}\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			output, errorOut = process.communicate()
 
 		elif outputType == ProjectType.LIB_STATIC:
 			outputPath = os.path.join(os.path.dirname(outputPath), "lib" + os.path.basename(outputPath))
-			os.system(f"ar rvs \"{outputPath}.a\" {objectsString} ")
+			process = subprocess.Popen(f"ar rvs \"{outputPath}.a\" {objectsString} ", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			output, errorOut = process.communicate()
+
+		if errorOut.decode() == "":
+			return True, "No error"
+		else:
+			return False, errorOut.decode()

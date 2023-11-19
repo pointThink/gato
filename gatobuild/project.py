@@ -60,7 +60,13 @@ class Project:
 
 
 		if objects != []:
-			print_colored(f"Linking files for project \"{self.name}\"\n", Color.BLUE)
-			compiler.linkFiles(objects, "bin/" + self.targetName, self.projectType, self.libraries)
+			print_colored(f"Linking project \"{self.name}\"\n", Color.BLUE)
+			succeded, error = compiler.linkFiles(objects, "bin/" + self.targetName, self.projectType, self.libraries)
+
+			if succeded:
+				print_colored(f"Linked project \"{self.name}\"\n", Color.GREEN)
+			else:
+				print_colored(f"Failed to link project \"{self.name}\"\n", Color.RED)
+				print_colored(error, Color.RED)
 		else:
 			print("No files to link!")
