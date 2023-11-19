@@ -1,4 +1,5 @@
 import os
+import time
 
 def findFilesEndingWith(folder: str, end: str):
 	contents = os.listdir(folder)
@@ -13,6 +14,23 @@ def findFilesEndingWith(folder: str, end: str):
 
 	return sourceFiles
 
+def fileWasChanged(filePath: str):
+	dateFile = None
+	relPath = ".gato/" + os.path.relpath(filePath)
+	createDirsForFile(relPath)
+
+	if os.path.isfile(relPath):
+		dateFile = open(relPath, "r+")
+	else:
+		dateFile = open(relPath, "w+")
+
+	return dateFile.read() != time.ctime(os.path.getmtime(filePath))
+
+def updateFileTimeStamp(filePath: str):
+	relPath = ".gato/" + os.path.relpath(filePath)
+
+	dateFile = open(relPath, "w+")  # todo find a better way to do this
+	dateFile.write(time.ctime(os.path.getmtime(filePath)))
 
 def createDirsForFile(path: str):
 	path = path.replace("\\", "/")

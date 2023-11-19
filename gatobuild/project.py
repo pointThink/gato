@@ -19,7 +19,7 @@ class Project:
 	defines: dict
 	deps: list
 
-	def build(self, compiler: compiler.Compiler):
+	def build(self, compiler: compiler.Compiler, forceRebuild: bool):
 		if not os.path.isdir("obj"):
 			os.mkdir("obj")
 
@@ -37,23 +37,12 @@ class Project:
 
 			utils.createDirsForFile(objPath.replace("\\", "/"))
 
-			# Check if should rebuild the file
-			dateFile = None
-			relPath = ".gato/" + os.path.relpath(file)
-			utils.createDirsForFile(relPath)
-
-			if os.path.isfile(relPath):
-				dateFile = open(relPath, "r+")
-			else:
-				dateFile = open(relPath, "w+")
-
-			if dateFile.read() != time.ctime(os.path.getmtime(file)):
+			if utils.fileWasChanged(file) or forceRebuild:
 				print_colored(f"Compiling file {os.path.basename(file)}\n", Color.CYAN)
 				succeded, error = compiler.compileFile(file, objPath, self.includeDirs, self.defines)
 
 				if succeded:
-					dateFile = open(relPath, "w+") # todo find a better way to do this
-					dateFile.write(time.ctime(os.path.getmtime(file)))
+					utils.updateFileTimeStamp(file)
 
 				else:
 					print_colored(f"Failed to build file{os.path.basename(file)}\n", Color.RED)
