@@ -1,3 +1,7 @@
+"""
+TODO: Cleanup this entire fucking codebase
+"""
+
 import sys
 import os
 import parser
@@ -20,10 +24,10 @@ def main(args: list):
 
 			projects = []
 			fileChanged = utils.fileWasChanged("gato.yaml")
-			projects = parser.createProject(os.path.abspath("gato.yaml"))
+			projects = parser.createProjects(os.path.abspath("gato.yaml"))
 
 			for project in projects:
-				project.build(compiler.MSVC(), fileChanged)
+				project.build(compiler.GCC(), fileChanged)
 
 			if fileChanged:
 				utils.updateFileTimeStamp("gato.yaml")

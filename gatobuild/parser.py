@@ -17,19 +17,29 @@ def resolveDeps(project: project.Project, projects: list):
 					project.libraries.append("build/bin/" + project2.targetName)
 					project.includeDirs += project2.includeDirs
 
-def createProject(filePath: str):
+def createProjects(filePath: str):
 	gatoFile = open(filePath, "r")
 	yamlContent = yaml.safe_load(gatoFile)
 
 	projects = []
 
+	if "imports" in yamlContent:
+		for importName in yamlContent["imports"]:
+			projects += createProjects(f"{importName}/gato.yaml")
+
 	# go through all the projects
-	for projectName in yamlContent:
+	for projectName in yamlContent["projects"]:
 		newProject = project.Project()
+		yamlProject = yamlContent["projects"][projectName]
+
+		if filePath == os.path.basename(filePath):
+			newProject.rootFolder = filePath
+		else:
+			newProject.rootFolder = os.path.dirname(filePath)
 
 		newProject.name = projectName
-		newProject.targetName = yamlContent[projectName]["target_name"]
-		projectType = yamlContent[projectName]["type"]
+		newProject.targetName = yamlProject["target_name"]
+		projectType = yamlProject["type"]
 
 		if projectType == "executable":
 			newProject.projectType = compiler.ProjectType.EXECUTABLE
@@ -43,20 +53,22 @@ def createProject(filePath: str):
 		newProject.includeDirs = []
 		newProject.libraries = []
 
-		if "include_dirs" in yamlContent[projectName]:
-			newProject.includeDirs = yamlContent[projectName]["include_dirs"]
+		if "include_dirs" in yamlProject:
+			for includeDir in yamlProject["include_dirs"]:
+				newProject.includeDirs.append(newProject.rootFolder + "/" + includeDir)
 
-		if "libraries" in yamlContent[projectName]:
-			newProject.libraries = yamlContent[projectName]["libraries"]
+		if "libraries" in yamlProject:
+			for library in yamlProject["libraries"]:
+				newProject.libraries.append(os.path.join(newProject.rootFolder, library))
 
 		# recurse through the source folders and find files
-		for sourceFolder in yamlContent[projectName]["sources"]:
-			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".cpp")
-			newProject.sourceFiles += utils.findFilesEndingWith(os.path.dirname(filePath) + "/" + sourceFolder, ".c")
+		for sourceFolder in yamlProject["sources"]:
+			newProject.sourceFiles += utils.findFilesEndingWith(newProject.rootFolder + "/" + sourceFolder, ".cpp")
+			newProject.sourceFiles += utils.findFilesEndingWith(newProject.rootFolder + "/" + sourceFolder, ".c")
 
 		# add preprocessor defines
-		if "defines" in yamlContent[projectName]:
-			for define in yamlContent[projectName]["defines"]:
+		if "defines" in yamlProject:
+			for define in yamlProject["defines"]:
 				defineSplit = define.split("=")
 
 				if len(defineSplit) >= 2:
@@ -67,8 +79,8 @@ def createProject(filePath: str):
 		# add dependencies
 		newProject.deps = []
 
-		if "deps" in yamlContent[projectName]:
-			newProject.deps = yamlContent[projectName]["deps"]
+		if "deps" in yamlProject:
+			newProject.deps = yamlProject["deps"]
 
 		resolveDeps(newProject, projects)
 

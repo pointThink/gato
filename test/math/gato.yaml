@@ -1,0 +1,10 @@
+projects:
+  math:
+    target_name: "math"
+    type: "lib_static"
+
+    sources:
+      - "Source"
+
+    include_dirs:
+      - "Source"

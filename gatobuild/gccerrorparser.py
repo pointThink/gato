@@ -37,6 +37,7 @@ def parseError(jsonInput: str):
 		elif jsonError["kind"] == "fatal error":
 			buildFailed = True
 			result.severity = 2
+			result.file = jsonError["locations"][0]["finish"]["file"]
 			result.line = jsonError["locations"][0]["finish"]["line"]
 			result.column = jsonError["locations"][0]["finish"]["column"]
 			result.description = jsonError["message"]

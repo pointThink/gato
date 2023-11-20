@@ -1,26 +1,17 @@
-math:
-  target_name: "math"
-  type: "lib_static"
+imports:
+  - "math"
 
-  sources:
-    - "math"
+projects:
+  main:
+    target_name: "test"
+    type: "executable"
 
-  include_dirs:
-    - "math"
+    sources:
+      - "main"
 
-main:
-  target_name: "test"
-  type: "executable"
+    deps:
+      - "math"
 
-  sources:
-    - "main"
-
-  include_dirs:
-    - "math"
-
-  libraries:
-    - "build/bin/math"
-
-  defines:
-    - "NUM1=410"
-    - "NUM2=69"
+    defines:
+      - "NUM1=410"
+      - "NUM2=69"

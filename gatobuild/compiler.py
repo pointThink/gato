@@ -125,6 +125,6 @@ class GCC(Compiler):
 			output, errorOut = process.communicate()
 
 		if errorOut.decode() == "":
-			return True, "No error"
+			return False, "No error"
 		else:
-			return False, errorOut.decode()
+			return True, errorOut.decode()

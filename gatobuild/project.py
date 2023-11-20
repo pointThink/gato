@@ -9,6 +9,7 @@ from color import *
 from error import printError
 
 class Project:
+	rootFolder: str
 	name: str
 	targetName: str
 	projectType: compiler.ProjectType
