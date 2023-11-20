@@ -1,3 +1,5 @@
+solution_name: "test"
+
 imports:
   - "math"
 
@@ -13,5 +15,5 @@ projects:
       - "math"
 
     defines:
-      - "NUM1=410"
+      - "NUM1=420"
       - "NUM2=69"

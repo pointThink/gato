@@ -2,45 +2,56 @@
 TODO: Cleanup this entire fucking codebase
 """
 
-import sys
-import os
-import parser
-import compiler
-import color
 import ctypes
 import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.dirname(sys.argv[0])))
+
+import projectLoader
+import color
 import utils
+import gcc
 
 # Enable colors in ConHost aka default terminal emulator
-kernel32 = ctypes.windll.kernel32
-kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+if sys.platform == "win32": # Why is it called win32 if it's 64 bit most of the time
+	kernel32 = ctypes.windll.kernel32
+	kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 def main(args: list):
-	# load the yaml file
-	fileChanged = False
+	print()
+	print("===================================")
+	print("  Gato build system - Version 0.1")
+	print("  Copyright (C) PointThink (2023)")
+	print("===================================")
+	print()
 
+	# load the yaml file
 	if len(args) == 2:
 		if args[1] == "build":
-
 			projects = []
 			fileChanged = utils.fileWasChanged("gato.yaml")
-			projects = parser.createProjects(os.path.abspath("gato.yaml"))
+			solution = projectLoader.createSolution(os.path.abspath("gato.yaml"))
 
-			for project in projects:
-				project.build(compiler.GCC(), fileChanged)
+			solution.build(gcc.GCC(), fileChanged)
 
 			if fileChanged:
 				utils.updateFileTimeStamp("gato.yaml")
 
 		elif args[1] == "clean":
+			print("Cleaning...")
+			print()
+
+			print ("Removing directory \"build\"")
 			utils.deleteItem("build")
+			print("Removing gato cache")
 			utils.deleteItem(".gato")
 		else:
-			color.print_colored(f"Unknown command: {args[1]}", color.Color.RED)
+			color.printColored(f"Unknown command: {args[1]}", color.Color.RED)
 			exit(1)
 
 	else:
-		color.print_colored(f"Expected 1 argument", color.Color.RED)
+		color.printColored(f"Expected 1 argument", color.Color.RED)
 
 if __name__ == "__main__":
 	main(sys.argv)

@@ -1,3 +1,5 @@
+solution_name: "math"
+
 projects:
   math:
     target_name: "math"

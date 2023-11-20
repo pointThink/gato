@@ -66,5 +66,5 @@ def deleteItem(item: str):
 
 		os.rmdir(item)
 
-	else:
+	elif os.path.isfile(item):
 		os.remove(item)

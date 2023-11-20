@@ -14,5 +14,5 @@ class Color(Enum):
     CYAN    = '\u001b[36m'
     WHITE   = '\u001b[37m'
 
-def print_colored(text, color: Color):
+def printColored(text, color: Color):
     print(f'{color.value}{text}{Color.RESET.value}', end='')

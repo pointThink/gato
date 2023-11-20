@@ -11,8 +11,8 @@ class Error:
 
 def printError(error: Error):
 	if error.severity == 1:
-		print_colored("[ WARNING ] ", Color.YELLOW)
+		printColored("[ WARNING ] ", Color.YELLOW)
 	elif error.severity == 2:
-		print_colored("[ ERROR ] ", Color.RED)
+		printColored("[ ERROR ] ", Color.RED)
 
 	print(f"{error.line}:{error.column} {error.file} - {error.description}")

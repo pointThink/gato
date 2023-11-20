@@ -3,6 +3,7 @@ import project
 import os
 import compiler
 import utils
+import solution
 from color import *
 
 def resolveDeps(project: project.Project, projects: list):
@@ -11,7 +12,7 @@ def resolveDeps(project: project.Project, projects: list):
 			for project2 in projects:
 				if project2.name == dep:
 					if project2.projectType == compiler.ProjectType.EXECUTABLE:
-						print_colored(f"Project \"{dep}\" is not a library!\n", Color.RED)
+						printColored(f"Project \"{dep}\" is not a library!\n", Color.RED)
 						exit(1)
 
 					project.libraries.append("build/bin/" + project2.targetName)
@@ -87,3 +88,14 @@ def createProjects(filePath: str):
 		projects.append(newProject)
 
 	return projects
+
+def createSolution(filePath: str):
+	newSolution = solution.Solution()
+
+	gatoFile = open(filePath, "r")
+	yamlContent = yaml.safe_load(gatoFile)
+
+	newSolution.name = yamlContent["solution_name"]
+	newSolution.projects = createProjects(filePath)
+
+	return newSolution

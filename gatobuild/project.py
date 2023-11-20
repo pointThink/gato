@@ -39,35 +39,37 @@ class Project:
 			objPath = "build/obj/" + os.path.relpath(file).rstrip(".cpp")
 			objects.append(objPath)
 
+			compileFailed = False
+
 			utils.createDirsForFile(objPath.replace("\\", "/"))
 
 			if utils.fileWasChanged(file) or forceRebuild:
-				print_colored(f"Compiling file {os.path.basename(file)}... ", Color.WHITE)
+				printColored(f"\tCompiling file \"{os.path.basename(file)}\" ", Color.WHITE)
 				failed, results = compiler.compileFile(file, objPath, self.includeDirs, self.defines)
 
 				if not failed:
-					print_colored("DONE!\n", Color.GREEN)
+					printColored("DONE!\n", Color.GREEN)
 					utils.updateFileTimeStamp(file)
 
 				else:
-
-					print_colored("FAILED!\n", Color.RED)
+					compileFailed = True
+					printColored("FAILED!\n", Color.RED)
 
 				for result in results:
+					print("\t", end="")
 					printError(result)
 
-		print()
+		if not compileFailed:
+			if objects != []:
+				print(f"\tLinking project \"{self.name}\" ", end="")
+				failed, error = compiler.linkFiles(objects, "build/bin/" + self.targetName, self.projectType, self.libraries)
 
-		if objects != []:
-			print_colored(f"Linking project \"{self.name}\"\n", Color.BLUE)
-			failed, error = compiler.linkFiles(objects, "build/bin/" + self.targetName, self.projectType, self.libraries)
-
-			if not failed:
-				print_colored(f"Linked project \"{self.name}\"\n", Color.GREEN)
+				if not failed:
+					printColored(f"DONE!\n", Color.GREEN)
+				else:
+					printColored(f"FAILED!\n", Color.RED)
+					printColored(error, Color.RED)
 			else:
-				print_colored(f"Failed to link project \"{self.name}\"\n", Color.RED)
-				print_colored(error, Color.RED)
-		else:
-			print("No files to link!")
+				print("\tNo files to link!")
 
-		print()
+		return not compileFailed
