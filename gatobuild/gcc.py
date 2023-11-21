@@ -17,7 +17,7 @@ languageParameters = {
 	"c++11": "-std=c++11",
 	"c++14": "-std=c++14",
 	"c++17": "-std=c++17",
-	"c++20": "-std=c++20",
+	"c++20": "-std=c++2a",
 	"c++23": "-std=c++23"
 }
 
@@ -69,6 +69,9 @@ def parseError(jsonInput: str):
 
 
 class GCC(Compiler):
+	gccPath = "gcc"
+	gppPath = "g++"
+
 	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict, language: str):
 		includeParams = []
 
@@ -93,10 +96,10 @@ class GCC(Compiler):
 		errorOut = b''
 
 		if sourcePath.endswith(".c"):
-			process = subprocess.Popen(f"gcc -fdiagnostics-format=json -c {languageParam} \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"{self.gccPath} -fdiagnostics-format=json -c {languageParam} \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			output, errorOut = process.communicate()
 		else:
-			process = subprocess.Popen(f"g++ -fdiagnostics-format=json -c {languageParam} \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"{self.gppPath} -fdiagnostics-format=json -c {languageParam} \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			output, errorOut = process.communicate()
 
 		return parseError(errorOut.decode().split("\n")[0])
@@ -120,12 +123,12 @@ class GCC(Compiler):
 
 			libsString = utils.joinStringList(newLibs, parenthisies=False)
 
-			process = subprocess.Popen(f"g++ {objectsString} {libsString} -o \"{outputPath}\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"{self.gppPath} {objectsString} {libsString} -o \"{outputPath}\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			output, errorOut = process.communicate()
 
 		elif outputType == ProjectType.LIB_STATIC:
 			outputPath = os.path.join(os.path.dirname(outputPath), "lib" + os.path.basename(outputPath))
-			process = subprocess.Popen(f"ar rvs -c \"{outputPath}.a\" {objectsString} ", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"ar rvs -c \"{outputPath}.a\" {objectsString} ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			output, errorOut = process.communicate()
 
 		if errorOut.decode() == "":

@@ -67,7 +67,7 @@ class Project:
 			utils.createDirsForFile(objPath.replace("\\", "/"))
 
 			if utils.fileWasChanged(file) or forceRebuild:
-				printColored(f"\tCompiling file \"{os.path.basename(file)}\" ", Color.WHITE)
+				printColored(f"\tCompiling file \"{os.path.basename(file)}\" ", Color.RESET)
 
 				language = ""
 
