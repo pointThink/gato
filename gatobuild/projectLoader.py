@@ -85,6 +85,41 @@ def createProjects(filePath: str):
 
 		resolveDeps(newProject, projects)
 
+		# set language versions
+		if "cpp_lang" in yamlProject:
+			cppDialect = yamlProject["cpp_lang"]
+
+			if cppDialect in project.supportedCppLangs:
+				newProject.cppDialect = cppDialect
+			else:
+				printColored(f"Unsupported C++ dialect: \"{cppDialect}\".\n", Color.RED)
+				print("Supported dialects are: ")
+
+				for dialect in project.supportedCppLangs:
+					print(f"\t- {dialect}")
+
+				exit(1)
+		else:
+			newProject.cppDialect = "c++17"
+
+		if "c_lang" in yamlProject:
+			cDialect = yamlProject["c_lang"]
+
+			if cDialect in project.supportedCLangs:
+				newProject.cDialect = cDialect
+			else:
+				printColored(f"Unsupported C dialect: \"{cDialect}\".\n", Color.RED)
+				print("Supported dialects are: ")
+
+				for dialect in project.supportedCLangs:
+					print(f"\t- {dialect}")
+
+				exit(1)
+
+		else:
+			newProject.cDialect = "c99"
+
+
 		projects.append(newProject)
 
 	return projects

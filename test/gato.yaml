@@ -8,6 +8,9 @@ projects:
     target_name: "test"
     type: "executable"
 
+    c_lang: "c99"
+    cpp_lang: "c++20"
+
     sources:
       - "main"
 

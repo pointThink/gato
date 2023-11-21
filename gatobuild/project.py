@@ -8,11 +8,34 @@ import compiler
 from color import *
 from error import printError
 
+supportedCLangs = [
+	"ansi",
+	"c89",
+	"c99",
+	"c11",
+	"c17"
+]
+
+supportedCppLangs = [
+	"c++98",
+	"c++03",
+	"c++11",
+	"c++14",
+	"c++17",
+	"c++20",
+	"c++23"
+]
+
 class Project:
 	rootFolder: str
+
 	name: str
 	targetName: str
+
 	projectType: compiler.ProjectType
+
+	cDialect: str
+	cppDialect: str
 
 	sourceFiles: list
 	includeDirs: list
@@ -45,7 +68,15 @@ class Project:
 
 			if utils.fileWasChanged(file) or forceRebuild:
 				printColored(f"\tCompiling file \"{os.path.basename(file)}\" ", Color.WHITE)
-				failed, results = compiler.compileFile(file, objPath, self.includeDirs, self.defines)
+
+				language = ""
+
+				if file.endswith(".c"):
+					language = self.cDialect
+				else:
+					language = self.cppDialect
+
+				failed, results = compiler.compileFile(file, objPath, self.includeDirs, self.defines, language)
 
 				if not failed:
 					printColored("DONE!\n", Color.GREEN)

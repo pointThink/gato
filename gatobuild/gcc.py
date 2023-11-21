@@ -6,6 +6,21 @@ from compiler import *
 import error
 import utils
 
+languageParameters = {
+	"ansi": "-ansi",
+	"c89": "-std=c89",
+	"c99": "-std=c99",
+	"c11": "-std=c11",
+	"c17": "-std=c17",
+	"c++98": "-std=c++98",
+	"c++03": "-std=c++03",
+	"c++11": "-std=c++11",
+	"c++14": "-std=c++14",
+	"c++17": "-std=c++17",
+	"c++20": "-std=c++20",
+	"c++23": "-std=c++23"
+}
+
 # This is bad dumb code but at least it works
 def parseError(jsonInput: str):
 	results = []
@@ -54,7 +69,7 @@ def parseError(jsonInput: str):
 
 
 class GCC(Compiler):
-	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
+	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict, language: str):
 		includeParams = []
 
 		for includeDir in includeDirs:
@@ -72,14 +87,16 @@ class GCC(Compiler):
 		includeParamsString = utils.joinStringList(includeParams, parenthisies=False)
 		objectPath = objectPath.replace("\\", "/")
 
+		languageParam = languageParameters[language]
+
 		output = b''
 		errorOut = b''
 
 		if sourcePath.endswith(".c"):
-			process = subprocess.Popen(f"gcc -fdiagnostics-format=json -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"gcc -fdiagnostics-format=json -c {languageParam} \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 		else:
-			process = subprocess.Popen(f"g++ -fdiagnostics-format=json -c \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			process = subprocess.Popen(f"g++ -fdiagnostics-format=json -c {languageParam} \"{sourcePath}\" {includeParamsString} {defineString} -o \"{objectPath}.o\"", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, errorOut = process.communicate()
 
 		return parseError(errorOut.decode().split("\n")[0])

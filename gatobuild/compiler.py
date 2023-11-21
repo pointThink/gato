@@ -6,7 +6,7 @@ class ProjectType(Enum):
 	LIB_STATIC = 2
 
 class Compiler:
-	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict):
+	def compileFile(self, sourcePath: str, objectPath: str, includeDirs: list, preprocessorDefines: dict, language: str):
 		return True, []
 	def linkFiles(self, objectList: list, outputPath: str, outputType: ProjectType, libraries: list):
 		return True, "Blank compiler!"
